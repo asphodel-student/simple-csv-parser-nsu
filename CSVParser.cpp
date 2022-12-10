@@ -63,6 +63,13 @@ public:
 		this->_readRows		= 0;
 
 		if (!file.is_open()) throw std::runtime_error("File is not opened!");
+		
+		std::string __trash;
+		while (this->_readRows < this->_skipLines)
+		{
+			std::getline(file, __trash);
+			this->_readRows++;
+		}
 
 		//Start to pasre a file
 		this->buffer = this->getString();
