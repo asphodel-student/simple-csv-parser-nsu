@@ -80,12 +80,12 @@ public:
 
 	std::tuple<Args...> getString()
 	{
-		char currentSymb = 0;
-
 		std::string					__readString;
 		std::vector<std::string>	__splittedString;
 
 		std::vector<std::string> output = getData();
+
+		if(this->_file.eof()) return std::tuple<Args...>();
 
 		auto flip = [&output]() -> std::string
 		{
@@ -96,7 +96,7 @@ public:
 
 		if (output.size() != sizeof...(Args))	throw std::runtime_error("Invalid string");
 		if (isSafe == true)						throw std::runtime_error("The save data wasn't closed!");
-
+	
 		return std::tuple<Args...>(setArgument<Args>(flip())...);
 	}
 
@@ -104,11 +104,11 @@ public:
 	class CSVInputIterator
 	{
 	public:
-		using iterator_category = std::input_iterator_tag;
-		using value_type = std::tuple<Args...>;
-		using difference_type = std::ptrdiff_t;
-		using pointer = value_type*;
-		using reference = value_type&;
+		using iterator_category	= std::input_iterator_tag;
+		using value_type		= std::tuple<Args...>;
+		using difference_type	= std::ptrdiff_t;
+		using pointer			= value_type*;
+		using reference			= value_type&;
 
 		CSVInputIterator(CSVParser<Args...>* _object = nullptr) : object(_object) {};
 		CSVInputIterator(const CSVInputIterator&) = default;
@@ -119,17 +119,13 @@ public:
 		friend bool operator==(CSVInputIterator& a, CSVInputIterator& b) { return a.object == b.object; }
 		friend bool operator!=(CSVInputIterator& a, CSVInputIterator& b) { return a.object != b.object; }
 
-		value_type operator*() { return object->buffer; }
+		value_type operator*() { if(!object->isEof) return object->buffer; }
+
 		CSVInputIterator& operator++()
 		{
-			try
-			{
-				object->buffer = object->getString();
-			}
-			catch(std::runtime_error& e)
-			{
-				object = nullptr;
-			}
+			object->buffer = object->getString();
+
+			if (object->isEof == true) object = nullptr;
 
 			return *this;
 		}
@@ -159,6 +155,13 @@ private:
 		std::vector <std::string>	__data;
 
 		std::getline(this->_file, __readString);
+
+		if(_file.eof())
+		{
+			this->isEof = true;
+			return std::vector<std::string>();
+		}
+
 		this->_readRows++;
 
 		size_t start = 0, end = 0;
@@ -207,7 +210,7 @@ int main()
 		std::cout << x;
 		std::cout << std::endl;
 	}
-	int cout = 0;
+
 	return 0;
 }
 
