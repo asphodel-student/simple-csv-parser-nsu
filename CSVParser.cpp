@@ -61,9 +61,10 @@ public:
 		this->delimiter		= delimeter;
 		this->saveSymbol	= safe;
 		this->_readRows		= 0;
+		this->_skipLines	= skipLines;
 
 		if (!file.is_open()) throw std::runtime_error("File is not opened!");
-		
+
 		std::string __trash;
 		while (this->_readRows < this->_skipLines)
 		{
@@ -141,9 +142,10 @@ public:
 
 private:
 	size_t				_readRows;
+	size_t				_skipLines;
 	std::ifstream&		_file;
 	std::vector<char>	_symbolsDividers;
-	std::tuple<Args...> buffer;
+	std::tuple<Args...>	 buffer;
 
 	char				delimiter;
 	char				saveSymbol;
@@ -205,7 +207,7 @@ int main()
 		std::cout << x;
 		std::cout << std::endl;
 	}
-
+	int cout = 0;
 	return 0;
 }
 
